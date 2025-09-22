@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import '../styles/Inicio.css';
 
 const Inicio = () => {
@@ -33,10 +34,10 @@ const Inicio = () => {
         const dataValoradas = await resValoradas.json();
         const dataSeriesValoradas = await resSeriesValoradas.json();
 
-        setPeliculasPopulares(dataPeliculas.results.slice(0, 8));
-        setSeriesPopulares(dataSeries.results.slice(0, 8));
-        setPeliculasValoradas(dataValoradas.results.slice(0, 8));
-        setSeriesValoradas(dataSeriesValoradas.results.slice(0, 8));
+        setPeliculasPopulares(dataPeliculas.results.slice(0, 10));
+        setSeriesPopulares(dataSeries.results.slice(0, 10));
+        setPeliculasValoradas(dataValoradas.results.slice(0, 10));
+        setSeriesValoradas(dataSeriesValoradas.results.slice(0, 10));
       } catch (error) {
         console.error('Error al obtener contenido:', error);
       }
@@ -48,7 +49,7 @@ const Inicio = () => {
   useEffect(() => {
     const intervalo = setInterval(() => {
       setIndiceActual((prev) => (prev + 1) % peliculasPopulares.length);
-    }, 30000);
+    }, 10000);
 
     return () => clearInterval(intervalo);
   }, [peliculasPopulares]);
@@ -73,6 +74,7 @@ const Inicio = () => {
         setDetalles({
           director: director ? director.name : 'Desconocido',
           duracion: data.runtime,
+          generos: data.genres.map(genre => genre.name).join(', '),
         });
       } catch (error) {
         console.error('Error al obtener detalles de la película:', error);
@@ -83,7 +85,7 @@ const Inicio = () => {
   }, [indiceActual, peliculasPopulares, token]);
 
   if (peliculasPopulares.length === 0 || !detalles) {
-    return <div className="inicio-page">Cargando contenido...</div>;
+    return <div className="inicio-loading">Cargando contenido...</div>;
   }
 
   const actual = peliculasPopulares[indiceActual];
@@ -91,75 +93,115 @@ const Inicio = () => {
     ? `https://image.tmdb.org/t/p/original${actual.backdrop_path}`
     : 'https://via.placeholder.com/1200x600?text=Sin+imagen';
 
-  const renderTarjetas = (lista) =>
+  const renderTarjetas = (lista, tipo) =>
     lista.map((item) => (
-      <div key={item.id} className="inicio-card">
-        <img
-          src={
-            item.poster_path
-              ? `https://image.tmdb.org/t/p/w200${item.poster_path}`
-              : 'https://via.placeholder.com/200x300?text=Sin+imagen'
-          }
-          alt={item.title || item.name}
-        />
-        <p>{item.title || item.name}</p>
-      </div>
+      <Link
+        key={item.id}
+        to={`/detalle/${tipo}/${item.id}`}
+        className="custom-movie-card"
+      >
+        <div className="custom-card-image-container">
+          <img
+            src={
+              item.poster_path
+                ? `https://image.tmdb.org/t/p/w300${item.poster_path}`
+                : 'https://via.placeholder.com/200x300?text=Sin+imagen'
+            }
+            alt={item.title || item.name}
+            className="custom-card-image"
+          />
+          <div className="custom-card-info">
+            <h3 className="custom-card-title">{item.title || item.name}</h3>
+            <div className="custom-card-meta">
+              <span className="custom-card-year">
+                {new Date(item.release_date || item.first_air_date).getFullYear()}
+              </span>
+              <span className="custom-card-rating">
+                ⭐ {item.vote_average.toFixed(1)}
+              </span>
+            </div>
+          </div>
+        </div>
+      </Link>
     ));
 
   return (
     <div className="inicio-page">
-      <div className="banner-wrapper">
-        <section
-          className="banner"
-          style={{
-            backgroundImage: `url(${fondo})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        >
-          <div className="banner-overlay">
-            <button onClick={() => setIndiceActual((prev) => (prev === 0 ? peliculasPopulares.length - 1 : prev - 1))} className="control-btn left">⟨</button>
-
-            <div className="banner-content">
-              <h1>{actual.title}</h1>
-              <p className="director">Director: {detalles.director}</p>
-              <p className="fecha">
-                {new Date(actual.release_date).toLocaleDateString('es-CL', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })} · Duración: {detalles.duracion} min
-              </p>
-              <p className="valoracion">
-                ⭐ {actual.vote_average} · Valoración TMDB
-              </p>
-              <p className="sinopsis">{actual.overview}</p>
+      <div className="hero-banner" style={{ backgroundImage: `url(${fondo})` }}>
+        <div className="banner-overlay">
+          <div className="banner-content">
+            <div className="movie-info">
+              <p className="info-director">Dirigida por {detalles.director}</p>
+              <h1 className="movie-title">{actual.title}</h1>
+              <div className="movie-meta">
+                <span>{new Date(actual.release_date).getFullYear()}</span>
+                <span>{detalles.duracion} min</span>
+                <span className="rating">
+                  ⭐ {actual.vote_average.toFixed(1)}
+                </span>
+              </div>
+              <p className="movie-description">{actual.overview}</p>
+              <div className="movie-genres">
+                {detalles.generos}
+              </div>
             </div>
-
-            <button onClick={() => setIndiceActual((prev) => (prev + 1) % peliculasPopulares.length)} className="control-btn right">⟩</button>
           </div>
-        </section>
+          <div className="banner-controls">
+            <button 
+              onClick={() => setIndiceActual((prev) => (prev === 0 ? peliculasPopulares.length - 1 : prev - 1))} 
+              className="control-btn prev"
+            >
+              ‹
+            </button>
+            <button 
+              onClick={() => setIndiceActual((prev) => (prev + 1) % peliculasPopulares.length)} 
+              className="control-btn next"
+            >
+              ›
+            </button>
+          </div>
+        </div>
       </div>
 
-      <main className="inicio-secciones">
-        <section>
-          <h2>Películas Populares</h2>
-          <div className="inicio-grid">{renderTarjetas(peliculasPopulares)}</div>
+      <main className="content-sections">
+        <section className="content-row">
+          <div className="section-header">
+            <h2>Películas Populares</h2>
+            <span className="see-all">Ver todo</span>
+          </div>
+          <div className="movies-scroll">
+            {renderTarjetas(peliculasPopulares, 'pelicula')}
+          </div>
         </section>
 
-        <section>
-          <h2>Series Populares</h2>
-          <div className="inicio-grid">{renderTarjetas(seriesPopulares)}</div>
+        <section className="content-row">
+          <div className="section-header">
+            <h2>Series Populares</h2>
+            <span className="see-all">Ver todo</span>
+          </div>
+          <div className="movies-scroll">
+            {renderTarjetas(seriesPopulares, 'serie')}
+          </div>
         </section>
 
-        <section>
-          <h2>Películas Mejor Valoradas</h2>
-          <div className="inicio-grid">{renderTarjetas(peliculasValoradas)}</div>
+        <section className="content-row">
+          <div className="section-header">
+            <h2>Películas Mejor Valoradas</h2>
+            <span className="see-all">Ver todo</span>
+          </div>
+          <div className="movies-scroll">
+            {renderTarjetas(peliculasValoradas, 'pelicula')}
+          </div>
         </section>
 
-        <section>
-          <h2>Series Mejor Valoradas</h2>
-          <div className="inicio-grid">{renderTarjetas(seriesValoradas)}</div>
+        <section className="content-row">
+          <div className="section-header">
+            <h2>Series Mejor Valoradas</h2>
+            <span className="see-all">Ver todo</span>
+          </div>
+          <div className="movies-scroll">
+            {renderTarjetas(seriesValoradas, 'serie')}
+          </div>
         </section>
       </main>
     </div>

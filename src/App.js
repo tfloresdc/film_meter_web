@@ -14,6 +14,7 @@ import Estrenos from './pages/Estrenos';
 import AdminPanel from './pages/AdminPanel';
 import Login from './pages/Login';
 import NoAutorizado from './pages/NoAutorizado';
+import Detalle from './pages/Detalle';
 
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -42,6 +43,7 @@ const AppContent = () => {
             </ProtectedRoute>
           }
         />
+        <Route path="/detalle/:tipo/:id" element={<Detalle />} />
       </Routes>
     </>
   );

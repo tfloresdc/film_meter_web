@@ -8,8 +8,19 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [resultados, setResultados] = useState([]);
+  // Scroll top
+  const [scrolled, setScrolled] = useState(false);
 
   const token = process.env.REACT_APP_TMDB_ACCESS_TOKEN;
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 0);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     const delay = setTimeout(() => {
@@ -62,7 +73,7 @@ const Navbar = () => {
   }, [query, token]);
 
   return (
-    <nav className="navbar">
+    <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
       <div className="navbar-left">
         <img src={logo} alt="FilmMeter Logo" className="logo" />
       </div>
@@ -82,7 +93,7 @@ const Navbar = () => {
         <form onSubmit={(e) => e.preventDefault()} className="navbar-form">
           <input
             type="text"
-            placeholder="Buscar"
+            placeholder="Buscar película..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="navbar-input"

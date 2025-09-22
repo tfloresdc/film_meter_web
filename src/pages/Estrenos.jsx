@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import '../styles/Estrenos.css';
 
 const Estrenos = () => {
@@ -25,7 +26,12 @@ const Estrenos = () => {
 
   const renderTarjetas = (lista) =>
     lista.map((item) => (
-      <div key={item.id} className="estrenos-card">
+      <Link
+        key={item.id}
+        to={`/detalle/pelicula/${item.id}`}
+        className="estrenos-card"
+        style={{ textDecoration: 'none', color: 'inherit' }}
+      >
         <img
           src={item.poster_path
             ? `https://image.tmdb.org/t/p/w200${item.poster_path}`
@@ -33,7 +39,7 @@ const Estrenos = () => {
           alt={item.title}
         />
         <p>{item.title}</p>
-      </div>
+      </Link>
     ));
 
   return (

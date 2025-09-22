@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import '../styles/Peliculas.css';
 
 const Peliculas = () => {
@@ -34,7 +35,12 @@ const Peliculas = () => {
 
   const renderTarjetas = (lista) =>
     lista.map((item) => (
-      <div key={item.id} className="peliculas-card">
+      <Link
+        key={item.id}
+        to={`/detalle/pelicula/${item.id}`}
+        className="peliculas-card"
+        style={{ textDecoration: 'none', color: 'inherit' }}
+      >
         <img
           src={item.poster_path
             ? `https://image.tmdb.org/t/p/w200${item.poster_path}`
@@ -42,7 +48,7 @@ const Peliculas = () => {
           alt={item.title}
         />
         <p>{item.title}</p>
-      </div>
+      </Link>
     ));
 
   return (

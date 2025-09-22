@@ -2,15 +2,24 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #111;
-  padding: 1rem 2rem;
+  background-color: #0c0c0c;
+  padding: 10px;
   color: #ffffff;
-  position: relative;
+  position: sticky;
+  top: 0;
   z-index: 10;
+  transition: background-color 0.5s ease, backdrop-filter 0.3s ease;
+
+
+}
+.navbar.scrolled {
+  background-color: rgba(12, 12, 12, 0.9);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
 .logo {
-  height: 40px;
+  height: 49px;
 }
 
 .hamburger {
@@ -24,7 +33,7 @@
 
 .navbar-center {
   display: flex;
-  gap: 2rem;
+  gap: 3rem;
   list-style: none;
 }
 
@@ -45,18 +54,18 @@
 
 .navbar-input {
   padding: 0.5rem 1rem;
-  border: none;
+  padding-right: 2rem;
+  color: #BCBCBC;
+  border: 1px solid #7D7D7D;
   border-radius: 8px;
-  background-color: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-  backdrop-filter: blur(6px);
+  background-color: #161616;
   font-size: 1rem;
   outline: none;
   transition: background-color 0.3s ease;
 }
 
 .navbar-input::placeholder {
-  color: #ffffff;
+  color: #7D7D7D;
 }
 
 .navbar-input:focus {
