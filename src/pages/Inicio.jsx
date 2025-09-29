@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/Inicio.css';
 
+import { TiInfoLarge } from "react-icons/ti";
+import { IoMdPlayCircle } from "react-icons/io";
+
 const Inicio = () => {
   const [peliculasPopulares, setPeliculasPopulares] = useState([]);
   const [seriesPopulares, setSeriesPopulares] = useState([]);
@@ -149,16 +152,38 @@ const Inicio = () => {
           <div className="banner-controls">
             <button 
               onClick={() => setIndiceActual((prev) => (prev === 0 ? peliculasPopulares.length - 1 : prev - 1))} 
-              className="control-btn prev"
+              className="control-btn nav-btn"
+              aria-label="Anterior"
+              title="Anterior"
             >
               ‹
             </button>
             <button 
               onClick={() => setIndiceActual((prev) => (prev + 1) % peliculasPopulares.length)} 
-              className="control-btn next"
+              className="control-btn nav-btn"
+              aria-label="Siguiente"
+              title="Siguiente"
             >
               ›
             </button>
+            <a
+              href={`/detalle/pelicula/${actual.id}`}
+              className="control-btn info-btn"
+              title="Ver más información"
+            >
+              <TiInfoLarge className="btn-icon" />
+              Más información
+            </a>
+            <a
+              href={`https://www.youtube.com/results?search_query=${encodeURIComponent(actual.title + ' trailer')}`}
+              className="control-btn trailer-btn"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Ver tráiler"
+            >
+              <IoMdPlayCircle className="btn-icon" />
+              Ver tráiler
+            </a>
           </div>
         </div>
       </div>
@@ -167,7 +192,7 @@ const Inicio = () => {
         <section className="content-row">
           <div className="section-header">
             <h2>Películas Populares</h2>
-            <span className="see-all">Ver todo</span>
+            <Link className="see-all" to="/peliculas">Ver todo</Link>
           </div>
           <div className="movies-scroll">
             {renderTarjetas(peliculasPopulares, 'pelicula')}
@@ -177,7 +202,7 @@ const Inicio = () => {
         <section className="content-row">
           <div className="section-header">
             <h2>Series Populares</h2>
-            <span className="see-all">Ver todo</span>
+            <Link className="see-all" to="/series">Ver todo</Link>
           </div>
           <div className="movies-scroll">
             {renderTarjetas(seriesPopulares, 'serie')}
@@ -187,7 +212,7 @@ const Inicio = () => {
         <section className="content-row">
           <div className="section-header">
             <h2>Películas Mejor Valoradas</h2>
-            <span className="see-all">Ver todo</span>
+            <Link className="see-all" to="/peliculas?top=true">Ver todo</Link>
           </div>
           <div className="movies-scroll">
             {renderTarjetas(peliculasValoradas, 'pelicula')}
@@ -197,7 +222,7 @@ const Inicio = () => {
         <section className="content-row">
           <div className="section-header">
             <h2>Series Mejor Valoradas</h2>
-            <span className="see-all">Ver todo</span>
+            <Link className="see-all" to="/series?top=true">Ver todo</Link>
           </div>
           <div className="movies-scroll">
             {renderTarjetas(seriesValoradas, 'serie')}

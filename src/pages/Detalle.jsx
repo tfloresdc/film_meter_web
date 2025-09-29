@@ -2,11 +2,34 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import '../styles/Detalle.css';
 
+// Obbtener resumen de Wikipedia en español
+async function fetchWikipediaSummary(titulo) {
+  const url = `https://es.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(titulo)}`;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return '';
+    const data = await res.json();
+    if (data.extract && !data.type?.includes('disambiguation')) {
+      // sinopsis con límite de 500 caracteres
+      return data.extract.length > 500
+        ? data.extract.slice(0, 497) + '...'
+        : data.extract;
+    }
+    return '';
+  } catch {
+    return '';
+  }
+}
+
 const Detalle = () => {
   const { id, tipo } = useParams();
   const [data, setData] = useState(null);
   const [trailer, setTrailer] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [overview, setOverview] = useState('');
+  const [temporadas, setTemporadas] = useState([]); // ← NUEVO
+  const [episodiosPorTemporada, setEpisodiosPorTemporada] = useState({}); // ← NUEVO
+  const [temporadaAbierta, setTemporadaAbierta] = useState(null); // ← NUEVO
 
   const token = process.env.REACT_APP_TMDB_ACCESS_TOKEN;
 
@@ -14,7 +37,6 @@ const Detalle = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Info principal + créditos
         const url = `https://api.themoviedb.org/3/${tipo === 'serie' ? 'tv' : 'movie'}/${id}?language=es-MX&append_to_response=credits,videos`;
         const res = await fetch(url, {
           headers: {
@@ -25,18 +47,64 @@ const Detalle = () => {
         const result = await res.json();
         setData(result);
 
-        // Buscar tráiler oficial
+        // Guardar temporadas si es serie
+        if (tipo === 'serie' && Array.isArray(result.seasons)) {
+          setTemporadas(result.seasons.filter(t => t.season_number !== 0));
+        } else {
+          setTemporadas([]);
+        }
+
+        // Tráiler oficial (YouTube)
         const video = result.videos?.results?.find(
           v => v.type === 'Trailer' && v.site === 'YouTube'
         );
         setTrailer(video ? `https://www.youtube.com/embed/${video.key}` : null);
+
+        // Sinopsis: TMDB o Wikipedia, si TMDB está vacía
+        if (result.overview && result.overview.trim() !== '') {
+          setOverview(result.overview);
+        } else {
+          const resumenWiki = await fetchWikipediaSummary(result.title || result.name);
+          setOverview(resumenWiki || 'Sin sinopsis disponible.');
+        }
       } catch (error) {
         setData(null);
+        setOverview('Sin sinopsis disponible.');
       }
       setLoading(false);
     };
     fetchData();
   }, [id, tipo, token]);
+
+  // Cargar episodios de una temporada al hacer click
+  const handleAbrirTemporada = async (season_number) => {
+    if (temporadaAbierta === season_number) {
+      setTemporadaAbierta(null);
+      return;
+    }
+    setTemporadaAbierta(season_number);
+    if (!episodiosPorTemporada[season_number]) {
+      try {
+        const url = `https://api.themoviedb.org/3/tv/${id}/season/${season_number}?language=es-MX`;
+        const res = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            accept: 'application/json',
+          },
+        });
+        const result = await res.json();
+        setEpisodiosPorTemporada(prev => ({
+          ...prev,
+          [season_number]: result.episodes || [],
+        }));
+      } catch {
+        setEpisodiosPorTemporada(prev => ({
+          ...prev,
+          [season_number]: [],
+        }));
+      }
+    }
+  };
 
   if (loading) {
     return <div className="detalle-loading">Cargando detalles...</div>;
@@ -82,11 +150,11 @@ const Detalle = () => {
             <strong>Dirigido por </strong> {director}
           </div>
           <div className="detalle-generos">
-            <strong>Géneros</strong> {generos}
+            <strong>Géneros:</strong> {generos}
           </div>
           <div className="detalle-sinopsis">
             <strong>Sinopsis</strong>
-            <p>{data.overview || 'Sin sinopsis disponible.'}</p>
+            <p>{overview || 'Sin sinopsis disponible.'}</p>
           </div>
           <div className="detalle-reparto">
             <strong>Reparto principal</strong>
@@ -119,6 +187,43 @@ const Detalle = () => {
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                 ></iframe>
+              </div>
+            </div>
+          )}
+          {/* TEMPORADAS Y EPISODIOS SOLO PARA SERIES */}
+          {tipo === 'serie' && temporadas.length > 0 && (
+            <div className="detalle-temporadas">
+              <strong>Temporadas</strong>
+              <div className="lista-temporadas">
+                {temporadas.map(temp => (
+                  <div key={temp.id} className="temporada-item">
+                    <button
+                      className="temporada-btn"
+                      onClick={() => handleAbrirTemporada(temp.season_number)}
+                    >
+                      {temp.name} ({temp.episode_count} episodios)
+                    </button>
+                    {temporadaAbierta === temp.season_number && (
+                      <div className="lista-episodios">
+                        {episodiosPorTemporada[temp.season_number]?.length === 0 && (
+                          <span>No hay episodios disponibles.</span>
+                        )}
+                        {episodiosPorTemporada[temp.season_number]?.map(ep => (
+                          <div key={ep.id} className="episodio-item">
+                            <span>
+                              <b>{ep.episode_number}.</b> {ep.name}
+                            </span>
+                            {ep.air_date && (
+                              <span className="episodio-fecha">
+                                ({new Date(ep.air_date).toLocaleDateString('es-CL')})
+                              </span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
           )}

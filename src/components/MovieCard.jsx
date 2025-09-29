@@ -14,7 +14,6 @@ const MovieCard = ({ item, tipo, mostrarTipo }) => {
     <Link
       to={`/detalle/${tipo}/${item.id}`}
       className="movie-card"
-      style={{ textDecoration: 'none', color: 'inherit' }}
     >
       <div className="movie-card-image-container">
         <img src={imagen} alt={titulo} className="movie-card-image" />

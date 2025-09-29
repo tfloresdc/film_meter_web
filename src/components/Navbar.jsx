@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import '../styles/Navbar.css';
@@ -14,6 +14,7 @@ const Navbar = () => {
   const [resultados, setResultados] = useState([]);
   // Scroll top
   const [scrolled, setScrolled] = useState(false);
+  const resultsRef = useRef();
 
   const token = process.env.REACT_APP_TMDB_ACCESS_TOKEN;
 
@@ -25,6 +26,12 @@ const Navbar = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const handleResultClick = () => {
+    setQuery('');
+    setResultados([]);
+    setMenuOpen(false);
+  }
 
   useEffect(() => {
     const delay = setTimeout(() => {
@@ -54,25 +61,54 @@ const Navbar = () => {
             )
           );
 
-          // LOGS PARA DEPURAR
-          console.log('Peliculas:', resPeliculas);
-          console.log('Series:', resSeries);
-
-          const apiResultados = [
+          let apiResultados = [
             ...(Array.isArray(resPeliculas.results) ? resPeliculas.results.map(r => ({ ...r, tipo: 'pelicula' })) : []),
             ...(Array.isArray(resSeries.results) ? resSeries.results.map(r => ({ ...r, tipo: 'serie' })) : []),
           ];
 
-          // LOGS PARA DEPURAR
-          console.log('apiResultados:', apiResultados);
+          // Obtener director/creador para cada resultado
+          apiResultados = await Promise.all(apiResultados.map(async (item) => {
+            try {
+              let director = 'Desconocido';
+              if (item.tipo === 'pelicula') {
+                const creditsRes = await fetch(
+                  `https://api.themoviedb.org/3/movie/${item.id}/credits`,
+                  {
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                      accept: 'application/json',
+                    },
+                  }
+                );
+                const credits = await creditsRes.json();
+                const dir = credits.crew?.find(c => c.job === 'Director');
+                if (dir) director = dir.name;
+              } else if (item.tipo === 'serie') {
+                const creditsRes = await fetch(
+                  `https://api.themoviedb.org/3/tv/${item.id}/credits`,
+                  {
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                      accept: 'application/json',
+                    },
+                  }
+                );
+                const credits = await creditsRes.json();
+                // Buscar creador o productor ejecutivo
+                const creator = credits.crew?.find(c => c.job === 'Executive Producer' || c.job === 'Creator');
+                if (creator) director = creator.name;
+              }
+              return { ...item, director };
+            } catch {
+              return { ...item, director: 'Desconocido' };
+            }
+          }));
 
           const filtradosAPI = apiResultados.filter(item => item && !bloqueados.includes(item.id));
           const filtradosManual = contenidoManual.filter(item =>
             item.titulo && item.titulo.toLowerCase().includes(query.toLowerCase())
           );
 
-          // LOGS PARA DEPURAR
-          console.log('filtradosManual:', filtradosManual);
 
           setResultados([...filtradosManual, ...filtradosAPI]);
         } catch (error) {
@@ -85,6 +121,18 @@ const Navbar = () => {
 
     return () => clearTimeout(delay);
   }, [query, token]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (resultsRef.current && !resultsRef.current.contains(event.target)) {
+        setResultados([]);
+      }
+    };
+    if (resultados.length > 0) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [resultados]);
 
   return (
     <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
@@ -134,23 +182,33 @@ const Navbar = () => {
       </div>
 
       {resultados.length > 0 && (
-        <div className="search-results">
+        <div className="search-results" ref={resultsRef}>
           <div className="search-grid">
             {resultados.slice(0, 6).map((item) => (
-              <MovieCard
-                key={item.id}
-                item={{
-                  id: item.id,
-                  title: item.titulo || item.title || item.name,
-                  overview: item.descripcion || item.overview || '',
-                  poster_path: item.poster_path || '',
-                  imagen: item.imagen || '',
-                  tipo: item.tipo,
-                  release_date: item.release_date || '',
-                }}
-              />
+              <div key={item.id} onClick={handleResultClick} style={{ cursor: 'pointer' }}>
+                <MovieCard
+                  key={item.id}
+                  item={{
+                    id: item.id,
+                    title: item.titulo || item.title || item.name,
+                    overview: item.descripcion || item.overview || '',
+                    poster_path: item.poster_path || '',
+                    imagen: item.imagen || '',
+                    tipo: item.tipo,
+                    release_date: item.release_date || '',
+                    director: item.director || 'Desconocido',
+                  }}
+                />
+              </div>
             ))}
-          </div>z
+          </div>
+          {resultados.length > 18 && (
+            <div style={{ textAlign: 'center', marginTop: '1rem', color: '#FFD700', fontWeight: 500, fontSize: '1rem' }}>
+              <Link to="/buscar" className="ver-todas">
+                Ver todas las películas
+              </Link>
+            </div>
+          )}
         </div>
       )}
     </nav>
