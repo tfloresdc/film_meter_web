@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/Series.css';
+import MovieCard from '../components/MovieCard';
 
 const Series = () => {
   const [populares, setPopulares] = useState([]);
@@ -35,20 +36,7 @@ const Series = () => {
 
   const renderTarjetas = (lista) =>
     lista.map((item) => (
-      <Link
-        key={item.id}
-        to={`/detalle/serie/${item.id}`}
-        className="series-card"
-        style={{ textDecoration: 'none', color: 'inherit' }}
-      >
-        <img
-          src={item.poster_path
-            ? `https://image.tmdb.org/t/p/w200${item.poster_path}`
-            : 'https://via.placeholder.com/200x300?text=Sin+imagen'}
-          alt={item.name}
-        />
-        <p>{item.name}</p>
-      </Link>
+      <MovieCard key={item.id} item={item} tipo="serie" />
     ));
 
   return (

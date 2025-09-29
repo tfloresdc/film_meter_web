@@ -1,32 +1,33 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import '../styles/MovieCard.css';
 
-const MovieCard = ({ movie }) => {
-  const {
-    id,
-    title,
-    name,
-    release_date,
-    imagen,
-    poster_path,
-    tipo,
-  } = movie;
-
-  const tituloFinal = title || name || movie.titulo || 'Sin título';
-  const año = release_date?.slice(0, 4) || '';
-  const imagenFinal = imagen
-    ? imagen
-    : poster_path
-      ? `https://image.tmdb.org/t/p/w300${poster_path}`
-      : 'https://via.placeholder.com/300x450?text=Sin+imagen';
+const MovieCard = ({ item, tipo, mostrarTipo }) => {
+  const titulo = item.title || item.name || 'Sin título';
+  const año = (item.release_date || item.first_air_date || '').slice(0, 4);
+  const imagen = item.poster_path
+    ? `https://image.tmdb.org/t/p/w300${item.poster_path}`
+    : 'https://via.placeholder.com/200x300?text=Sin+imagen';
+  const rating = item.vote_average ? item.vote_average.toFixed(1) : 'N/A';
 
   return (
-    <Link to={`/pelicula/${id}`} className="movie-card">
-      <img src={imagenFinal} alt={tituloFinal} />
-      <div className="movie-info">
-        <h3>{tituloFinal}</h3>
-        <p>{año}</p>
-        {tipo && <span className="tipo-label">{tipo === 'serie' ? 'Serie' : 'Película'}</span>}
+    <Link
+      to={`/detalle/${tipo}/${item.id}`}
+      className="movie-card"
+      style={{ textDecoration: 'none', color: 'inherit' }}
+    >
+      <div className="movie-card-image-container">
+        <img src={imagen} alt={titulo} className="movie-card-image" />
+      </div>
+      <div className="movie-card-info">
+        <h3 className="movie-card-title">{titulo}</h3>
+        <div className="movie-card-meta">
+          <span className="movie-card-year">{año}</span>
+          <span className="movie-card-rating">⭐ {rating}</span>
+          {mostrarTipo && (
+            <span className="movie-card-type">{tipo === 'serie' ? 'Serie' : 'Película'}</span>
+          )}
+        </div>
       </div>
     </Link>
   );
