@@ -5,6 +5,8 @@ import '../styles/Inicio.css';
 import { TiInfoLarge } from "react-icons/ti";
 import { IoMdPlayCircle } from "react-icons/io";
 
+const MAX_SINOPSIS = 220;
+
 const Inicio = () => {
   const [peliculasPopulares, setPeliculasPopulares] = useState([]);
   const [seriesPopulares, setSeriesPopulares] = useState([]);
@@ -12,6 +14,7 @@ const Inicio = () => {
   const [seriesValoradas, setSeriesValoradas] = useState([]);
   const [indiceActual, setIndiceActual] = useState(0);
   const [detalles, setDetalles] = useState(null);
+  const [mostrarSinopsisCompleta, setMostrarSinopsisCompleta] = useState(false);
 
   const token = process.env.REACT_APP_TMDB_ACCESS_TOKEN;
 
@@ -96,6 +99,11 @@ const Inicio = () => {
     ? `https://image.tmdb.org/t/p/original${actual.backdrop_path}`
     : 'https://via.placeholder.com/1200x600?text=Sin+imagen';
 
+  // --- NUEVO: lógica para sinopsis recortada ---
+  const sinopsis = actual.overview || 'Sin sinopsis disponible.';
+  const esLarga = sinopsis.length > MAX_SINOPSIS;
+  const sinopsisCorta = esLarga ? sinopsis.slice(0, MAX_SINOPSIS - 1) : sinopsis;
+
   const renderTarjetas = (lista, tipo) =>
     lista.map((item) => (
       <Link
@@ -143,47 +151,74 @@ const Inicio = () => {
                   ⭐ {actual.vote_average.toFixed(1)}
                 </span>
               </div>
-              <p className="movie-description">{actual.overview}</p>
+              <p className="movie-description">
+                {mostrarSinopsisCompleta || !esLarga ? (
+                  <>
+                    {sinopsis}
+                    {esLarga && (
+                      <span
+                        className="ver-menos"
+                        style={{ color: '#FFD700', cursor: 'pointer', fontWeight: 500, marginLeft: 8 }}
+                        onClick={() => setMostrarSinopsisCompleta(false)}
+                      >
+                        ...menos
+                      </span>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {sinopsisCorta}
+                    <span
+                      className="ver-mas"
+                      style={{ color: '#FFD700', cursor: 'pointer', fontWeight: 500, marginLeft: 8 }}
+                      onClick={() => setMostrarSinopsisCompleta(true)}
+                    >
+                      ...
+                    </span>
+                  </>
+                )}
+              </p>
               <div className="movie-genres">
                 {detalles.generos}
               </div>
             </div>
-          </div>
-          <div className="banner-controls">
-            <button 
-              onClick={() => setIndiceActual((prev) => (prev === 0 ? peliculasPopulares.length - 1 : prev - 1))} 
-              className="control-btn nav-btn"
-              aria-label="Anterior"
-              title="Anterior"
-            >
-              ‹
-            </button>
-            <button 
-              onClick={() => setIndiceActual((prev) => (prev + 1) % peliculasPopulares.length)} 
-              className="control-btn nav-btn"
-              aria-label="Siguiente"
-              title="Siguiente"
-            >
-              ›
-            </button>
-            <a
-              href={`/detalle/pelicula/${actual.id}`}
-              className="control-btn info-btn"
-              title="Ver más información"
-            >
-              <TiInfoLarge className="btn-icon" />
-              Más información
-            </a>
-            <a
-              href={`https://www.youtube.com/results?search_query=${encodeURIComponent(actual.title + ' trailer')}`}
-              className="control-btn trailer-btn"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="Ver tráiler"
-            >
-              <IoMdPlayCircle className="btn-icon" />
-              Ver tráiler
-            </a>
+
+            <div className="banner-controls">
+              <button 
+                onClick={() => setIndiceActual((prev) => (prev === 0 ? peliculasPopulares.length - 1 : prev - 1))} 
+                className="control-btn nav-btn"
+                aria-label="Anterior"
+                title="Anterior"
+              >
+                ‹
+              </button>
+              <button 
+                onClick={() => setIndiceActual((prev) => (prev + 1) % peliculasPopulares.length)} 
+                className="control-btn nav-btn"
+                aria-label="Siguiente"
+                title="Siguiente"
+              >
+                ›
+              </button>
+              <a
+                href={`/detalle/pelicula/${actual.id}`}
+                className="control-btn info-btn"
+                title="Ver más información"
+              >
+                <TiInfoLarge className="btn-icon" />
+                Más información
+              </a>
+              <a
+                href={`https://www.youtube.com/results?search_query=${encodeURIComponent(actual.title + ' trailer')}`}
+                className="control-btn trailer-btn"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Ver tráiler"
+              >
+                <IoMdPlayCircle className="btn-icon" />
+                Ver tráiler
+              </a>
+            </div>
           </div>
         </div>
       </div>

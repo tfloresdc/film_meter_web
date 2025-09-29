@@ -173,7 +173,7 @@ const Navbar = () => {
           </span>
           <input
             type="text"
-            placeholder="Buscar película..."
+            placeholder="Buscar..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="navbar-input"

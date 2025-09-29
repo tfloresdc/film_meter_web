@@ -229,3 +229,102 @@
   color: #aaa;
   font-size: 0.92em;
 }
+
+/* RESPONSIVE DETALLE */
+
+@media (max-width: 900px) {
+  .detalle-header {
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 2vw;
+    gap: 1.5rem;
+    min-height: 0;
+  }
+  .detalle-info {
+    max-width: 98vw;
+    padding: 1.2rem 1rem;
+  }
+  .detalle-poster img {
+    width: 60vw;
+    max-width: 220px;
+  }
+  .detalle-info h1 {
+    font-size: 2rem;
+    margin-bottom: 1.2rem;
+  }
+  .detalle-meta {
+    gap: 1rem;
+    font-size: 1rem;
+  }
+  .detalle-cast-list {
+    gap: 0.7rem;
+  }
+}
+
+
+@media (max-width: 600px) {
+  .detalle-header {
+    padding: 0.7rem 0.2rem;
+    gap: 1rem;
+  }
+  .detalle-info {
+    font-size: 0.97rem;
+    padding: 0.7rem 0.5rem;
+    border-radius: 8px;
+  }
+  .detalle-poster img {
+    width: 90vw;
+    max-width: 140px;
+  }
+  .detalle-info h1 {
+    font-size: 1.15rem;
+    margin-bottom: 0.7rem;
+    padding-bottom: 0.2rem;
+  }
+  .detalle-meta {
+    gap: 0.5rem;
+    font-size: 0.93rem;
+    flex-wrap: wrap;
+  }
+  .detalle-cast-list {
+    gap: 0.4rem;
+  }
+  .detalle-cast-item {
+    width: 60px;
+    font-size: 0.85rem;
+    padding: 0.3rem;
+  }
+  .detalle-cast-item img {
+    width: 40px;
+    height: 60px;
+  }
+  .detalle-trailer-video {
+    max-width: 98vw;
+  }
+  .detalle-volver {
+    font-size: 0.95rem;
+    padding: 0.4rem 0.7rem;
+  }
+  .detalle-temporadas {
+    font-size: 0.95rem;
+  }
+  .lista-episodios {
+    padding: 0.5rem 0.5rem;
+    font-size: 0.93rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .detalle-info {
+    padding: 0.4rem 0.1rem;
+    font-size: 0.92rem;
+  }
+  .detalle-info h1 {
+    font-size: 1rem;
+    margin-bottom: 0.4rem;
+  }
+  .detalle-poster img {
+    width: 98vw;
+    max-width: 100px;
+  }
+}
