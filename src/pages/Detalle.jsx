@@ -27,9 +27,11 @@ const Detalle = () => {
   const [trailer, setTrailer] = useState(null);
   const [loading, setLoading] = useState(true);
   const [overview, setOverview] = useState('');
-  const [temporadas, setTemporadas] = useState([]); // ← NUEVO
-  const [episodiosPorTemporada, setEpisodiosPorTemporada] = useState({}); // ← NUEVO
-  const [temporadaAbierta, setTemporadaAbierta] = useState(null); // ← NUEVO
+  const [temporadas, setTemporadas] = useState([]);
+  const [episodiosPorTemporada, setEpisodiosPorTemporada] = useState({});
+  const [temporadaAbierta, setTemporadaAbierta] = useState(null);
+  const [titleLogo, setTitleLogo] = useState(null);
+  const isSerie = tipo === 'serie';
 
   const token = process.env.REACT_APP_TMDB_ACCESS_TOKEN;
 
@@ -37,6 +39,7 @@ const Detalle = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
+        // Datos base
         const url = `https://api.themoviedb.org/3/${tipo === 'serie' ? 'tv' : 'movie'}/${id}?language=es-MX&append_to_response=credits,videos`;
         const res = await fetch(url, {
           headers: {
@@ -67,9 +70,37 @@ const Detalle = () => {
           const resumenWiki = await fetchWikipediaSummary(result.title || result.name);
           setOverview(resumenWiki || 'Sin sinopsis disponible.');
         }
+
+        // Logo del título (si existe)
+        const imagesUrl = `https://api.themoviedb.org/3/${tipo === 'serie' ? 'tv' : 'movie'}/${id}/images?include_image_language=es,en,null`;
+        const resImages = await fetch(imagesUrl, {
+          headers: { Authorization: `Bearer ${token}`, accept: 'application/json' }
+        });
+        const imgs = await resImages.json();
+        const logos = imgs.logos || [];
+
+        if (logos.length > 0) {
+            const pickByLang = (langs) => 
+              logos
+                .filter(l => langs.includes(l.iso_639_1))
+                .sort((a, b) => (b.vote_average || 0) - (a.vote_average || 0) || (b.width - a.width));
+          
+          let elegido =
+            pickByLang(['es', 'es-MX', 'es-ES'])[0] ||
+            pickByLang(['en'])[0] ||
+            logos.sort((a, b) => (b.vote_average || 0) - (a.vote_average || 0) || (b.width - a.width))[0];
+
+          if (elegido?.file_path) {
+            setTitleLogo(`https://image.tmdb.org/t/p/w500${elegido.file_path}`);
+          } 
+        } else {
+          setTitleLogo(null);
+        }
+
       } catch (error) {
         setData(null);
         setOverview('Sin sinopsis disponible.');
+        setTitleLogo(null);
       }
       setLoading(false);
     };
@@ -121,8 +152,30 @@ const Detalle = () => {
   const generos = data.genres?.map(g => g.name).join(', ') || 'Sin información';
   // Fecha
   const fecha = data.release_date || data.first_air_date || '';
-  // Duración
-  const duracion = data.runtime || data.episode_run_time?.[0] || null;
+
+
+  // Formatear duración (h:mm)
+    const formatRuntime = (minutos) => {
+      if (!minutos || isNaN(minutos)) return '--';
+      const h = Math.floor(minutos / 60);
+      const m = minutos % 60;
+      if (h > 0) return `${h}h ${m ? ' ' + m + 'm' : ''}`;
+      return `${m}min`;
+    };
+
+    const movieRuntime = !isSerie ? data.runtime : null;
+
+    let serieDuracionTexto = null;
+    if (isSerie) {
+      const arr = (data.episode_run_time || []).filter(n => !!n);
+      if (arr.length === 1) {
+        serieDuracionTexto = `${arr[0]} min`;
+      } else if (arr.length > 1) {
+        const min = Math.min(...arr);
+        const max = Math.max(...arr);
+        serieDuracionTexto = min === max ? `${min} min` : `${min} - ${max} min`;
+      }
+    }
 
   return (
     <div className="detalle-page">
@@ -140,10 +193,21 @@ const Detalle = () => {
           />
         </div>
         <div className="detalle-info">
-          <h1>{data.title || data.name}</h1>
+          {titleLogo ? (
+            <img
+              src={titleLogo}
+              alt={data.title || data.name}
+              className="detalle-title-logo"
+              loading="lazy"
+            />
+          ):(
+            <h1>{data.title || data.name}</h1>
+          )}
           <div className="detalle-meta">
             <span>{fecha ? new Date(fecha).toLocaleDateString('es-CL') : 'Sin fecha'}</span>
-            {duracion && <span>{duracion} min</span>}
+            {!isSerie && movieRuntime && <span>{formatRuntime(movieRuntime)}</span>}
+            {isSerie && serieDuracionTexto && <span>Promedio: {serieDuracionTexto}</span>}
+            <span>•</span>
             <span className="detalle-rating">⭐ {data.vote_average?.toFixed(1)}</span>
           </div>
           <div className="detalle-director">
@@ -191,7 +255,7 @@ const Detalle = () => {
             </div>
           )}
           {/* TEMPORADAS Y EPISODIOS SOLO PARA SERIES */}
-          {tipo === 'serie' && temporadas.length > 0 && (
+          {isSerie && temporadas.length > 0 && (
             <div className="detalle-temporadas">
               <strong>Temporadas</strong>
               <div className="lista-temporadas">
@@ -208,18 +272,22 @@ const Detalle = () => {
                         {episodiosPorTemporada[temp.season_number]?.length === 0 && (
                           <span>No hay episodios disponibles.</span>
                         )}
-                        {episodiosPorTemporada[temp.season_number]?.map(ep => (
-                          <div key={ep.id} className="episodio-item">
-                            <span>
-                              <b>{ep.episode_number}.</b> {ep.name}
-                            </span>
-                            {ep.air_date && (
-                              <span className="episodio-fecha">
-                                ({new Date(ep.air_date).toLocaleDateString('es-CL')})
+                        {episodiosPorTemporada[temp.season_number]?.map(ep => {
+                          const epRun = ep.runtime ? formatRuntime(ep.runtime) : null;
+                          return (
+                            <div key={ep.id} className="episodio-item">
+                              <span>
+                                <b>{ep.episode_number}.</b> {ep.name}
+                                {epRun && <span className="episodio-runtime"> • {epRun}</span>}
                               </span>
-                            )}
-                          </div>
-                        ))}
+                              {ep.air_date && (
+                                <span className="episodio-fecha">
+                                  ({new Date(ep.air_date).toLocaleDateString('es-CL')})
+                                </span>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
                   </div>

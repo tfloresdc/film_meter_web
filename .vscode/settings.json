@@ -1,4 +1,4 @@
 {
-    "editor.cursorStyle": "underline",
+    "editor.cursorStyle": "line-thin",
     "editor.cursorBlinking": "phase"
 }

@@ -184,21 +184,31 @@ const Navbar = () => {
       {resultados.length > 0 && (
         <div className="search-results" ref={resultsRef}>
           <div className="search-grid">
-            {resultados.slice(0, 6).map((item) => (
-              <div key={item.id} onClick={handleResultClick} style={{ cursor: 'pointer' }}>
-                <MovieCard
-                  key={item.id}
-                  item={{
-                    id: item.id,
-                    title: item.titulo || item.title || item.name,
-                    overview: item.descripcion || item.overview || '',
-                    poster_path: item.poster_path || '',
-                    imagen: item.imagen || '',
-                    tipo: item.tipo,
-                    release_date: item.release_date || '',
-                    director: item.director || 'Desconocido',
-                  }}
-                />
+            {resultados.slice(0, 8).map((item) => (
+              <div key={item.id} className="search-row-card" style={{ cursor: 'default' }}>
+                <div onClick={handleResultClick} style={{ cursor: 'pointer' }}>
+                  <MovieCard
+                    key={item.id}
+                    item={{
+                      id: item.id,
+                      title: item.titulo || item.title || item.name,
+                      overview: item.descripcion || item.overview || '',
+                      poster_path: item.poster_path || '',
+                      imagen: item.imagen || '',
+                      tipo: item.tipo,
+                      release_date: item.release_date || '',
+                      director: item.director || 'Desconocido',
+                    }}
+                  />
+                </div>
+                <div className="search-row-info">
+                  <div className="search-row-title">
+                    {item.titulo || item.title || item.name}
+                  </div>
+                  <div className="search-row-director">
+                    {item.director ? `Dirigido por: ${item.director}` : 'Director desconocido'}
+                  </div>
+                </div>
               </div>
             ))}
           </div>

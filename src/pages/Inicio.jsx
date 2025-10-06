@@ -109,9 +109,9 @@ const Inicio = () => {
       <Link
         key={item.id}
         to={`/detalle/${tipo}/${item.id}`}
-        className="custom-movie-card"
+        className="movie-card"
       >
-        <div className="custom-card-image-container">
+        <div className="card-image-container">
           <img
             src={
               item.poster_path
@@ -119,15 +119,15 @@ const Inicio = () => {
                 : 'https://via.placeholder.com/200x300?text=Sin+imagen'
             }
             alt={item.title || item.name}
-            className="custom-card-image"
+            className="card-image"
           />
-          <div className="custom-card-info">
-            <h3 className="custom-card-title">{item.title || item.name}</h3>
-            <div className="custom-card-meta">
-              <span className="custom-card-year">
+          <div className="card-info">
+            <h3 className="card-title">{item.title || item.name}</h3>
+            <div className="card-meta">
+              <span className="card-year">
                 {new Date(item.release_date || item.first_air_date).getFullYear()}
               </span>
-              <span className="custom-card-rating">
+              <span className="card-rating">
                 ⭐ {item.vote_average.toFixed(1)}
               </span>
             </div>

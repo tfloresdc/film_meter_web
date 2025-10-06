@@ -25,8 +25,25 @@
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 .detalle-poster img:hover {
-    transform: scale(1.05);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.8);
+  transform: scale(1.05);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.8);
+}
+
+.detalle-title-logo {
+  max-width: 300px;
+  width: 70%;
+  height: auto;
+  margin: 0 auto 2rem;
+  display: block;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.7));
+  animation: fadeIn 1s ease forwards;
+  transition: transform 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .detalle-info {
@@ -63,6 +80,14 @@
   color: #cccccc;
   align-items: center;
 }
+.episodio-runtime {
+  color: #FFD700;
+  font-size: 0.85em;
+  font-weight: 500;
+  margin-left: 4px;
+  opacity: 0.9;
+}
+
 
 .detalle-rating {
   color: #FFD700;
@@ -248,6 +273,11 @@
     width: 60vw;
     max-width: 220px;
   }
+  .detalle-title-logo {
+    width: 88%;
+    max-width: 300px;
+    margin: 0 auto 1rem;
+  }
   .detalle-info h1 {
     font-size: 2rem;
     margin-bottom: 1.2rem;
@@ -271,6 +301,11 @@
     font-size: 0.97rem;
     padding: 0.7rem 0.5rem;
     border-radius: 8px;
+  }
+  .detalle-title-logo {
+    width: 80%;
+    max-width: 360px;
+    margin: 0 auto 1rem;
   }
   .detalle-poster img {
     width: 90vw;
