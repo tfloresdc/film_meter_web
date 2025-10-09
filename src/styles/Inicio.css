@@ -61,7 +61,7 @@
   background-color: rgba(245, 197, 24, 0.1);
 }
 .movie-description {
-  font-size: 0.9rem;
+  font-size: 18px;
   color: #cccccc;
   line-height: 1.15;
   margin-top: 0.5rem; 
@@ -80,8 +80,9 @@
   bottom: auto;
   flex-wrap: wrap;
   width: 100%;
-  
 }
+
+
 .control-btn {
   background-color: rgba(255, 255, 255, 0.12);
   border: none;
@@ -321,6 +322,8 @@
 }
 
 /* Responsive */
+
+/* 900PX */
 @media (max-width: 900px) {
   .hero-banner {
     height: 65vh;
@@ -328,6 +331,7 @@
   .banner-content {
     max-width: 70%;
     margin-bottom: 10%;
+    margin-bottom: 2rem;
   }
   .movie-title {
     font-size: 2rem;
@@ -367,13 +371,47 @@
   }
 }
 
+/* 600PX */
+@media (max-width: 600px) {
+  .hero-banner {
+    height: 60vh;
+  }
+  .banner-content {
+    max-width: 85%;
+    margin-bottom: 8%;
+  }
+  .movie-title {
+    font-size: 1.5rem;
+  }
+  .movie-meta {
+    font-size: 0.85rem;
+    gap: 0.7rem;
+    color: #ccc;
+  } 
+  .movie-description {
+    font-size: 0.8rem;
+    max-width: 90%;
+    margin-top: 0.2rem;
+  }
+  .banner-controls {
+    bottom: 7%;
+    right: 4%;
+    gap: 0.4rem;
+  }
+  .control-btn {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
+  }
+}
+
+/* 768PX */
 @media (max-width: 768px) {
   .hero-banner {
     height: 60vh;
   }
   .banner-content {
     max-width: 80%;
-    margin-bottom: 0.7rem;
+    margin-bottom: 0.3rem;
   }
   .movie-title {
     font-size: 1.8rem;
@@ -392,24 +430,34 @@
     right: 4%;
     gap: 0.4rem;
   }
-  .navbar {
-    padding: 0.4rem 1rem;
-  }
-  
-  .navbar-form {
-    margin-top: 0.3rem;
-    padding: 0 0.5rem;
-    width: 100%;
-  }
 }
 
-@media (max-width: 400px) {
+@media (max-width: 425px) {
   .navbar-center {
     border-radius: 5px;
+  }
+  .banner-overlay {
+    padding: 0 3%;
   }
   .banner-content {
     max-width: 95%;
     margin-bottom: 0.5rem;
+    margin-top: 7rem;
+  }
+  .movie-title {
+    font-size: 1.05rem;
+    line-height: 1.15;
+  }
+  .movie-description {
+    font-size: 0.75rem;
+    max-width: 95vw;
+    margin-top: 0.2rem;
+    line-height: 1.1;
+  }
+  .movie-meta .rating {
+    font-size: 0.8rem;
+    gap: 0.5rem;
+    flex-wrap: wrap;
   }
   .banner-controls {
     bottom: 5%;

@@ -131,12 +131,14 @@ const Navbar = () => {
 
   return (
     <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
-      <div className="navbar-left">
-        <img src={logo} alt="FilmMeter Logo" className="logo" />
+      <div className="navbar-top">
+        <div className="navbar-left">
+          <img src={logo} alt="FilmMeter Logo" className="logo" />
+        </div>
+        <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>
+          <FiMenu />
+        </button>
       </div>
-      <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>
-        <FiMenu />
-      </button>
       <ul className={`navbar-center ${menuOpen ? 'open' : ''}`}>
         <li>
           <Link to="/">

@@ -52,13 +52,21 @@ const Inicio = () => {
     fetchData();
   }, [token]);
 
+  const peliculasConSinopsis = peliculasPopulares.filter(
+    p => p.overview && p.overview.trim().length > 0
+  );
+
+  const actual = peliculasConSinopsis.length > 0
+    ? peliculasConSinopsis[indiceActual % peliculasConSinopsis.length]
+    : null;
+
   useEffect(() => {
     const intervalo = setInterval(() => {
-      setIndiceActual((prev) => (prev + 1) % peliculasPopulares.length);
+      setIndiceActual((prev) => (prev + 1) % peliculasConSinopsis.length);
     }, 10000);
 
     return () => clearInterval(intervalo);
-  }, [peliculasPopulares]);
+  }, [peliculasConSinopsis]);
 
   useEffect(() => {
     const obtenerDetalles = async () => {
@@ -90,11 +98,11 @@ const Inicio = () => {
     obtenerDetalles();
   }, [indiceActual, peliculasPopulares, token]);
 
-  if (peliculasPopulares.length === 0 || !detalles) {
-    return <div className="inicio-loading">Cargando contenido...</div>;
+  // Si no hay películas con sinopsis, muestra un mensaje alternativo
+  if (peliculasConSinopsis.length === 0 || !detalles || !actual) {
+    return <div className="inicio-loading">No hay películas con sinopsis disponible.</div>;
   }
 
-  const actual = peliculasPopulares[indiceActual];
   const fondo = actual?.backdrop_path
     ? `https://image.tmdb.org/t/p/original${actual.backdrop_path}`
     : 'https://via.placeholder.com/1200x600?text=Sin+imagen';
@@ -190,7 +198,9 @@ const Inicio = () => {
 
             <div className="banner-controls">
               <button 
-                onClick={() => setIndiceActual((prev) => (prev === 0 ? peliculasPopulares.length - 1 : prev - 1))} 
+                onClick={() => setIndiceActual((prev) => 
+                  prev === 0 ? peliculasConSinopsis.length - 1 : prev - 1
+                )} 
                 className="control-btn nav-btn"
                 aria-label="Anterior"
                 title="Anterior"
@@ -198,7 +208,9 @@ const Inicio = () => {
                 ‹
               </button>
               <button 
-                onClick={() => setIndiceActual((prev) => (prev + 1) % peliculasPopulares.length)} 
+                onClick={() => setIndiceActual((prev) => 
+                  (prev + 1) % peliculasConSinopsis.length
+                )} 
                 className="control-btn nav-btn"
                 aria-label="Siguiente"
                 title="Siguiente"
