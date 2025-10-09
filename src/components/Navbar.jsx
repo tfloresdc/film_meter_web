@@ -27,11 +27,6 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleResultClick = () => {
-    setQuery('');
-    setResultados([]);
-    setMenuOpen(false);
-  }
 
   useEffect(() => {
     const delay = setTimeout(() => {
@@ -184,41 +179,28 @@ const Navbar = () => {
       {resultados.length > 0 && (
         <div className="search-results" ref={resultsRef}>
           <div className="search-grid">
-            {resultados.slice(0, 8).map((item) => (
-              <div key={item.id} className="search-row-card" style={{ cursor: 'default' }}>
-                <div onClick={handleResultClick} style={{ cursor: 'pointer' }}>
-                  <MovieCard
-                    key={item.id}
-                    item={{
-                      id: item.id,
-                      title: item.titulo || item.title || item.name,
-                      overview: item.descripcion || item.overview || '',
-                      poster_path: item.poster_path || '',
-                      imagen: item.imagen || '',
-                      tipo: item.tipo,
-                      release_date: item.release_date || '',
-                      director: item.director || 'Desconocido',
-                    }}
-                  />
-                </div>
-                <div className="search-row-info">
-                  <div className="search-row-title">
-                    {item.titulo || item.title || item.name}
-                  </div>
-                  <div className="search-row-director">
-                    {item.director ? `Dirigido por: ${item.director}` : 'Director desconocido'}
-                  </div>
-                </div>
-              </div>
-            ))}
+            {resultados
+              .filter(item =>
+                (item.poster_path || item.imagen) &&
+                (item.title || item.name || item.titulo) &&
+                (item.vote_average && item.vote_average > 0) &&
+                (item.director && item.director !== 'Desconocido')
+              )
+              .slice(0, 12)
+              .map((item) => (
+                <MovieCard
+                  key={item.id}
+                  item={item}
+                  tipo={item.tipo}
+                  mostrarTipo={true}
+                  onClick={() => {
+                    // cerrar resultados al hacer click en la card y limpiar el input
+                    setResultados([]);
+                    setQuery('');
+                  }}
+                />
+              ))}
           </div>
-          {resultados.length > 18 && (
-            <div style={{ textAlign: 'center', marginTop: '1rem', color: '#FFD700', fontWeight: 500, fontSize: '1rem' }}>
-              <Link to="/buscar" className="ver-todas">
-                Ver todas las películas
-              </Link>
-            </div>
-          )}
         </div>
       )}
     </nav>

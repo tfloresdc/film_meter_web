@@ -116,21 +116,26 @@ const Inicio = () => {
             src={
               item.poster_path
                 ? `https://image.tmdb.org/t/p/w300${item.poster_path}`
-                : 'https://via.placeholder.com/200x300?text=Sin+imagen'
+                : 'https://via.placeholder.com/300x450?text=Sin+imagen'
             }
             alt={item.title || item.name}
             className="card-image"
+            loading="lazy"
+            onError={(e) => { e.currentTarget.src = 'https://via.placeholder.com/300x450?text=Sin+imagen'; }}
           />
-          <div className="card-info">
-            <h3 className="card-title">{item.title || item.name}</h3>
-            <div className="card-meta">
-              <span className="card-year">
-                {new Date(item.release_date || item.first_air_date).getFullYear()}
-              </span>
-              <span className="card-rating">
-                ⭐ {item.vote_average.toFixed(1)}
-              </span>
-            </div>
+        </div>
+
+        <div className="card-info">
+          <h3 className="card-title">{item.title || item.name}</h3>
+          <div className="card-meta">
+            <span className="card-year">
+              {item.release_date || item.first_air_date
+                ? new Date(item.release_date || item.first_air_date).getFullYear()
+                : '—'}
+            </span>
+            <span className="card-rating">
+              ⭐ {item.vote_average && item.vote_average > 0 ? Number(item.vote_average).toFixed(1) : '—'}
+            </span>
           </div>
         </div>
       </Link>
