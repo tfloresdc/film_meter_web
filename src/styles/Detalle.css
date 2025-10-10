@@ -363,3 +363,68 @@
     max-width: 100px;
   }
 }
+
+@media (max-width: 2560px) {
+  .detalle-header {
+    padding: 4rem 12%;
+    gap: 3rem;
+    min-height: 85vh;
+  }
+  .detalle-poster img {
+    width: 500px;
+  }
+  .detalle-title-logo {
+    max-width: 400px;
+    margin-bottom: 3rem;
+  }
+  .detalle-info {
+    max-width: 900px;
+    padding: 3rem 3.5rem;
+  }
+  .detalle-info h1 {
+    font-size: 3rem;
+    margin-bottom: 3rem;
+  }
+  .detalle-meta {
+    gap: 2.5rem;
+    font-size: 1.7rem;
+    margin-bottom: 2rem;
+  }
+  .detalle-sinopsis {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .detalle-cast-list {
+    gap: 1.5rem;
+    margin-top: 1rem;
+  }
+  .detalle-director {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .detalle-generos {
+    font-size: 1.4rem;
+    margin-bottom: 2rem;
+  }
+  .detalle-reparto {
+    font-size: 1.4rem;
+    margin-bottom: 2rem;
+  }
+  .detalle-cast-item {
+    width: 120px;
+    font-size: 1.2rem;
+    padding: 0.7rem;
+  }
+  .detalle-cast-item img {
+    width: 90px;
+    height: 130px;
+  }
+  .detalle-trailer-video {
+    max-width: 600px;
+    margin-top: 1rem;
+  }
+  .detalle-volver {
+    font-size: 1.2rem;
+    padding: 0.7rem 1.2rem;
+  }
+}

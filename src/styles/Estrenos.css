@@ -1,3 +1,7 @@
+html {
+  background-color: #111;
+}
+
 .estrenos-page {
   background-color: #111;
   color: #fff;
@@ -13,8 +17,7 @@
 
 .estrenos-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
 }
 
 .estrenos-card {
